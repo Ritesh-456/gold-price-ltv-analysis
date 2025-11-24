@@ -1,416 +1,241 @@
-# 💰 Gold Price Impact — LTV Analysis  
-### Forecasting, Stress Testing & Risk Analytics Dashboard  
-### *(A Fintech's-style FinTech Data Analyst Project)*  
+## **Gold Price Forecasting and Loan-to-Value (LTV) Risk Modelling Using Machine Learning and Deep Learning Techniques**
+
+
+##  🏦 **1. Introduction**
+
+Gold-backed lending is one of the fastest-growing secured loan sectors in India, with Non-Banking Financial Companies (NBFCs) and banks relying heavily on gold price stability to ensure the safety of their collateralized portfolios. However, gold prices exhibit high sensitivity to global market conditions, macroeconomic indicators, and commodity price fluctuations. Sudden declines in gold value directly increase the Loan-to-Value (LTV) ratio, exposing lenders to elevated default and margin-call risk.
+
+To address this challenge, this project develops a comprehensive data-driven risk assessment and forecasting framework capable of predicting future gold prices, analyzing their impact on loan portfolios, and explaining the underlying drivers behind these predictions.
 
 ---
 
-## 📌 **Overview**
+## ❗**2. Problem Statement**
 
-This project analyzes how **gold price movements impact the Loan-to-Value (LTV) ratio** for gold-backed loans — a core risk metric used by lenders like **Fintech's**, Muthoot, Manappuram, and banks operating under RBI's 75% LTV rule.
+Financial institutions face significant operational and credit risks when gold prices exhibit volatility.  
+Key questions addressed in this research include:
 
-The project includes:
+- 🔹**How will gold prices move in the next 30–90 days?**  
+- 🔹**What is the expected LTV position of a loan portfolio under normal and stressed market conditions?**  
+- 🔹**Which macroeconomic factors most strongly influence gold price trends?**  
+- 🔹**How can machine learning models provide interpretable and actionable insights?**
 
-- 📈 45 years of gold price historical data  
-- 🧹 Full data cleaning & transformation pipeline  
-- 🔗 Merging multiple datasets  
-- 🔮 90-day forecasting (Prophet / Holt-Winters)  
-- 🧮 LTV simulation for 500 synthetic loans  
-- ⚠️ Stress testing under -5%, -10%, -20% gold price shocks  
-- 🌐 Streamlit dashboard for interactive risk analytics (Phase 6)  
-- 📄 Detailed documentation (this README)
+The goal is to build an end-to-end analytical system that integrates data preprocessing, feature engineering, ML forecasting, explainability, and real-time analytics.
 
 ---
 
-# 📁 Repository Name  
-**`Gold-Price-Impact---LTV-Analysis`**
+## 🎯**3. Objectives**
+
+### **Primary Objectives**
+-  📈 Forecast short-term gold price movements using classical, machine learning, and deep learning models.  
+-  🧮 Estimate future LTV ratios for a synthetic gold loan portfolio.  
+-  🚨 Identify high-risk loans under multiple stress scenarios.  
+-  🔍 Provide explainability of predictions using SHAP values.  
+
+### **Secondary Objectives**
+-  🖥 Build a fully functional multi-tab Streamlit dashboard for interactive risk monitoring.  
+- ⚡ Deploy GPU-optimized models for improved training and inference performance.
 
 ---
 
-# 🌐 Live Dashboard (Optional)  
-Live Preview:  
-**[Active Link](https://gold-price-ltv-analysis.streamlit.app/)**
+##  🔬 **4. Methodology**
+
+The project follows a structured data science lifecycle.
 
 ---
 
-# 🧱 **Project Architecture Diagram**
+### **4.1 Data Acquisition**
 
-    ┌─────────────────────────────────────────────────────┐
-    │                RAW DATASETS                         │
-    │ ─ Dataset 1: MCX Daily Gold Price (INR/10g)         │
-    │ ─ Dataset 2: Multi-variant ML dataset (80 cols)     │
-    │ ─ Dataset 3: WGC Historical Gold Prices (1978–2023) │
-    └─────────────────────────────────────────────────────┘
-                            │
-                            ▼
-        ┌─────────────────────────────────────────────┐
-        │       PHASE 2: CLEANING & TRANSFORMATION    │
-        │ Convert Date, Handle NaNs, Ounce→10g, etc.  │
-        └─────────────────────────────────────────────┘
-                            │
-                            ▼
-        ┌─────────────────────────────────────────────┐
-        │          PHASE 3: MERGING PIPELINE          │
-        │ Combined historical + MCX recent data       │
-        │ Built continuous INR/10g daily series       │
-        └─────────────────────────────────────────────┘
-                            │
-                            ▼
-        ┌─────────────────────────────────────────────┐
-        │        PHASE 4: FORECAST ENGINE             │
-        │ Prophet / Holt-Winters → 90-day forecast    │
-        └─────────────────────────────────────────────┘
-                            │
-                            ▼
-      ┌─────────────────────────────────────────────────┐
-      │       PHASE 5: LTV CALCULATOR ENGINE            │
-      │ Synthetic portfolio → LTV now + future + shocks │
-      └─────────────────────────────────────────────────┘
-                            │
-                            ▼
-      ┌────────────────────────────────────────────────┐
-      │       PHASE 6: STREAMLIT DASHBOARD             │
-      │ Interactive charts, filters, stress tests      │
-      │ app.py → :contentReference[oaicite:1]{index=1} │
-      └────────────────────────────────────────────────┘
+Three heterogeneous datasets were collected:
 
-
+- Daily MCX India gold prices (2014–2025)  
+- Gold ETF and macroeconomic indicators (USO, USD Index, S&P 500, Dow Jones, commodity prices)  
+- World Gold Council historical gold data (1978–2023)  
 
 ---
 
-# 🏗️ **Project Folder Structure**
-```
-Gold-Price-Impact---LTV-Analysis/
+### **4.2 Data Processing and Standardization**
+
+- Cleaning missing and inconsistent values  
+- Converting date fields to uniform time-index  
+- Merging multi-source datasets  
+- Interpolating missing macroeconomic indicators  
+- Generating a unified daily dataset with **1659 observations × 98 features**
+
+---
+
+### **4.3 Feature Engineering**
+
+Advanced time-series engineering was performed:
+
+- ⏱ Lag features: **1, 2, 7, 14, 30 days**  
+-  📉 Moving averages: **MA7, MA14, MA30, MA60**  
+- 📊  Rolling volatility: **STD7, STD14, STD30, STD60**  
+-  🔄 Trend direction flags  
+-  📅 Date-derived features: **Year, Month, Quarter, Day-of-Week**  
+-  🌍 Cross-market features from **USO, USD Index, GDX, Silver, Oil, Bond yields**
+
+This enriched feature space significantly improved model predictive capacity.
+
+---
+
+##  🤖 **5. Modelling Approach**
+
+---
+
+### **5.1 Classical Models**
+- **Linear Regression**  
+  - Served as a baseline.  
+  - Demonstrated limitations due to non-linear relationships.
+
+---
+
+###  🌲 **5.2 Machine Learning Models**
+
+#### **Random Forest Regressor**
+- Captures non-linear interactions.  
+- Provides feature-level interpretability.
+
+#### ⚡ **XGBoost Regressor (GPU Accelerated)**
+- Trained using **NVIDIA RTX 3050 (CUDA)**  
+- Delivered superior generalization  
+- Exported to **JSON format** to ensure compatibility with XGBoost ≥ 3.1  
+- Used for **SHAP explainability**
+
+---
+
+###  🧠 **5.3 Deep Learning**
+
+#### **LSTM (Long Short-Term Memory) Network**
+- Input sequence length: **30 days**  
+- 2-layer architecture with **128 hidden units**  
+- Learned temporal dependencies effectively  
+- Produced **30–90 day forward forecasts**
+
+All models were evaluated using **RMSE, MAE, and R²**.
+
+---
+
+##  📊 **6. Portfolio LTV Risk Modelling**
+
+A synthetic loan portfolio was generated with:
+
+- Gold purity  
+- Loan amount  
+- Disbursal date  
+- Principal-to-purity-adjusted gold value  
+- Historical gold price at issuance  
+
+### **Risk Metrics Computed**
+- **Current LTV**  
+- **Forecasted LTV** (using ML predictions)  
+- **Stress scenario LTVs:** −5%, −10%, −20% gold price drop  
+- **High-risk loan detection**
+
+This enabled lenders to anticipate **margin call triggers**.
+
+---
+
+##  🧮 **7. Explainability & Model Interpretation**
+
+To ensure transparency and regulator-friendly modelling:
+
+### **SHAP (Shapley Additive Explanations)** was used.
+
+Key drivers revealed:
+
+- **USD Index**  
+- **USO Close**  
+- **S&P500 Close**  
+- **GDX Gold Miner ETF**  
+- **Lagged Adj Close values**
+
+SHAP ensured the system is interpretable and suitable for financial environments requiring auditability.
+
+---
+
+##  🖥 **8. Dashboard Implementation**
+
+A multi-tab **Streamlit** application was developed to integrate all analytical components.
+
+### 📌 **Tab 1 — LTV Analysis**
+- Portfolio distribution  
+- LTV metrics  
+- Stress-test evaluation  
+- Risk flagging
+
+### 📌 **Tab 2 — ML Forecast & Prediction**
+- Single-day predictions (**RF / XGB / LSTM**)  
+- Editable input panel  
+- 30–90 day LSTM forward forecast  
+
+### 📌 **Tab 3 — Explainability**
+- SHAP summary plot  
+- Feature importance rankings  
+
+This dashboard acts as a prototype **risk analytics tool** for fintechs, NBFCs, and banks.
+
+---
+
+##  📝 **9. Results**
+
+- **XGBoost** produced the strongest predictive performance.  
+- **LSTM** successfully captured long-term temporal patterns and provided stable forecasts.  
+- **SHAP** validated that the model relies on meaningful macroeconomic indicators.  
+- Stress testing correctly highlighted loans with potential LTV breaches.
+
+---
+
+##  📝 **10. Conclusion**
+
+This project demonstrates a complete **real-world financial risk modelling system** integrating:
+
+- Multi-source data  
+- Advanced engineered features  
+- Machine learning & deep learning approaches  
+- Model explainability  
+- Portfolio stress testing  
+- Dashboard deployment  
+
+It accurately mirrors workflows used by **NBFCs, banks, and fintech companies** that depend on gold-backed lending.
+
+---
+
+##  🚀 **11. Future Enhancements**
+
+- Integrate **real-time MCX/live gold price API**  
+- Add **ARIMA / SARIMA** for statistical comparison  
+- Deploy dashboard on cloud with automated updates  
+- Implement **reinforcement learning** for dynamic LTV thresholds  
+- Expand modelling to **multi-collateral risk systems**  
+- Introduce **PostgreSQL database** for portfolio storage  
+
+---
+
+##  🛠 **12. Technologies Used**
+
+- **Pytho, Pandas, NumPy**
+- **Scikit-learn, XGBoost, PyTorch**  
+- **SHAP, Statsmodels**  
+- **Streamlit**  
+- **Matplotlib, Seaborn**  
+- **CUDA GPU (RTX 3050)**  
+- **Jupyter Notebooks**
+
+---
+
+## 📂 **13. Repository Structure**
+
+```plaintext
+gold-price-ltv-analysis/
 │
 ├── Dataset/
-│ ├── dataset_2_1978–2023/
-│ │ ├── Daily.csv
-│ │ ├── Monthly_Avg.csv
-│ │ ├── ...
-│ ├── 1_Gold Price.csv
-│ └── simulated_loan_portfolio.csv
+├── models/
+├── outputs/
+├── Notebooks/
 │
-├── gold_price_ts_daily.csv
-├── gold_price_merged.csv
-├── gold_price_forecast_90d.csv
-├── gold_price_history_and_forecast.csv
-│
-├── gold_ltv_analysis.ipynb
-├── app.py # Streamlit App (Dashboard)
+├── app.py
+├── lstm_model_def.py
+├── model_loader.py
+├── requirements.txt
 └── README.md
 ```
-
-
----
-
-# 🧠 **PHASE 1 — Dataset Analysis & Selection**
-
-We began with **three datasets**:
-
-### **Dataset 1 — MCX India Gold Price (2015–2025)**
-| Pros | Cons |
-|------|------|
-| Accurate INR/10g data used by Indian lenders | Only 10 years of history |
-| Matches Fintech's’s actual valuation model | Cannot model long-term seasonality |
-| Clean, ready for LTV calculations | Not suitable alone for forecasting |
-
----
-
-### **Dataset 2 — Multi-variant ML dataset (80 columns)**
-| Pros | Cons |
-|------|------|
-| Contains Oil, S&P 500, USD Index, Silver, etc. | Overkill for pure data analytics |
-| Best for ML regression models | No INR-specific price series |
-| Great for future ML project | Hard to interpret for business stakeholders |
-
-**→ Not used in this Data Analyst project (will be used for ML extension).**
-
----
-
-### **Dataset 3 — WGC Historical Data (1978–2023)**
-| Pros | Cons |
-|------|------|
-| 45 years of global gold prices | Some early INR values missing |
-| Best for long-term trend & forecasting | Needs unit conversion from ounce |
-| Official, authoritative | Requires transformation |
-
----
-
-### 🎯 **Final Choice for Data Analyst Project: Dataset 1 + Dataset 3**
-
-- **Dataset 1** = Accurate recent INR prices (LTV-ready)  
-- **Dataset 3** = Long history for forecasting  
-
-This combination provides:
-- Realistic valuation model  
-- Long-term forecasting ability  
-- Clean INR per 10g continuity  
-- High recruiter value  
-
----
-
-# 🧹 **PHASE 2 — Data Cleaning & Processing**
-
-### Key Steps:
-
-### **2.1 Convert Date formats**
-```python
-df['Date'] = pd.to_datetime(df['Date'])
-```
-
-### **2.2 Convert INR per ounce → INR per gram → INR per 10g**
-1 troy ounce = 31.1035 grams
-
-INR_per_gram   = INR / 31.1035
-INR_per_10g    = INR_per_gram * 10
-
-
-### **2.3 Handle missing INR**
-Forward fill:
-```python
-df['INR_per_10g'] = df['INR_per_10g'].fillna(method='ffill')
-```
-
-### **2.4 Sort & standardize**
-```python
-df = df.sort_values('Date')
-```
----
-
-
-# 🔗 **PHASE 3 — Merging Historical + MCX Prices**
-Logic:
-```
-merged['Gold_Price'] = merged['Price_10g_mcx'].combine_first(merged['Price_10g_hist'])
-```
-
-
-Why?
-
-- Use MCX if available
-
-- Else fallback to historical data
-
-- Ensures continuity from 1978 → 2025
-
-Save final merged time series:
-```
-ts.to_csv("gold_price_ts_daily.csv", index=False)
-```
----
-
-
-# 🔮 **PHASE 4 — Forecast Engine**
-
-We used:
-
-- ✔ Prophet (if installed)
-- ✔ Holt-Winters as fallback
-
-### **Forecast Steps:**
-
- Prepare daily time series
-
-- Fit forecasting model
-
-- Generate 90-day forecast
-
-- Save outputs:
-    - gold_price_forecast_90d.csv
-
-    - gold_price_history_and_forecast.csv
-
-Example forecast visualization:
-```
-Historical ───────────────┐
-                          ├── Forecast (yhat)
-Lower/Upper Bands ────────┘
-```
----
-
-
-# 🧮 **PHASE 5 — LTV Engine & Stress Testing**
-**Synthetic loan portfolio (500 loans)**
-
-Saved as:
-```
-Dataset/simulated_loan_portfolio.csv
-```
-**LTV Formula**
-```
-gold_value_now = weight_g × purity_factor × current_price_per_gram
-
-LTV_now = (loan_amount / gold_value_now) × 100
-```
-
-**Stress Scenarios:**
-
-- Mild → -5%
-
-- Medium → -10%
-
-- Severe → -20%
-
-**Output Summary:**
-
-- LTV_now
-
-- LTV_forecast
-
-- LTV_-5%
-
-- LTV_-10%
-
-- LTV_-20%
-
-- Risk flags (LTV > 75%)
-
----
-# 🌐 **PHASE 6 — Streamlit Dashboard**
-
-
-File: ```app.py```
-
-📄app
-
-## 🎨 **Dashboard Sections**
-
-### 📈 **1. Gold Price Trend (History + Forecast)**
-Plotly line chart:
-```
-px.line(combined, x="Date", y=["Historical","Forecast"])
-```
-
-Shows:
-
-- Long-term trend
-
-- Future forecast
-
-- Confidence intervals
-
-### 🏦 **2. Loan Portfolio Overview**
----
-Metrics:
-
-- Total loans
-
-- Avg loan amount
-
-- Avg LTV
-### 📊 **3. LTV Distribution**
----
-Histogram of current LTV:
-
-- Red line at 75% RBI limit
-
-- Helps spot overvalued loans
-### ⚠️ **4. Stress Testing Section**
----
-Sidebar option selects:
-
-- None
-
-- -5%
-
-- -10%
-
-- -20%
-
-Updates:
-
-- Recomputes LTV
-
-- Shows # risky loans
-
-- Visual distribution
-### 🔥 **5. Top 20 Riskiest Loans**
-
-
-Table shows:
-
-- loan_id
-
-- loan_amount
-
-- gold_weight
-
-- purity
-
-- LTV_shock
-
-----
-##  📂 **Data Loading Logic in Streamlit**
-(From app.py)
-```
-ts = pd.read_csv("gold_price_ts_daily.csv")
-forecast = pd.read_csv("gold_price_forecast_90d.csv")
-combined = pd.read_csv("gold_price_history_and_forecast.csv")
-loan_df = pd.read_csv("Dataset/simulated_loan_portfolio.csv")
-```
-## **▶️ How to Run the Dashboard**
-### **Install dependencies**
-```
-pip install streamlit pandas numpy plotly prophet statsmodels
-```
-
-### **Run Streamlit**
-```
-streamlit run app.py
-```
-
-
-Dashboard opens at:
-
-👉 http://localhost:8501 ↗
-
-
-
-# 📄 **Future Enhancements (Phase 7 / ML Extension)**
-
-- Use Dataset 2 to build ML models for price prediction
-
-- Train Random Forest, XGBoost, LSTM
-
-- Add customer segmentation
-
-- Add portfolio-level risk forecasting
-
-- Deploy the dashboard on Streamlit Cloud
-
-# ⭐ **Conclusion**
-
-This project demonstrates end-to-end skills required for a FinTech Data Analyst / Risk Analyst role:
-
-- Data engineering
-
-- Time series forecasting
-
-- Financial modeling
-
-- LTV stress testing
-
-- Interactive dashboards
-
-- Documentation & storytelling
-
-It aligns perfectly with companies like:    
-
-- Fintech's
-
-- Muthoot
-
-- Manappuram
-
-- Banks offering secured loans
-
-# 🥷 **Author**
-
-Name - *Ritesh Brahmachari*
-
-- WebPage - https://riteshbrahmachariportfolio.vercel.app/
-
-- LinkedIN - https://www.linkedin.com/in/ritesh-brahmachari-1b7b84278/
-
-- Streamlit - https://share.streamlit.io/user/ritesh-456
-
----
